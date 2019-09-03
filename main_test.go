@@ -10,7 +10,7 @@ import (
 
 func TestMain(m *testing.M) {
 	mongotest.Configure(
-		mongotest.URL("mongodb://root:password@localhost:27017"),
+		mongotest.URL("mongodb://root:password@127.0.0.1:27017"),
 		mongotest.Database("mongotest"),
 		mongotest.FixtureRootDir("testdata"))
 
