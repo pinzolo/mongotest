@@ -57,8 +57,7 @@ func Count(collectionName string) (int64, error) {
 
 // CountInt returns document count as int in collection that has given name.
 func CountInt(collectionName string) (int, error) {
-	n, err := Count(collectionName)
-	return int(n), err
+	return CountIntWithContext(context.Background(), collectionName)
 }
 
 // FindWithContext document that has given id in given named collection.
