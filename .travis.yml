@@ -6,6 +6,9 @@ branches:
   only:
     - master
 
+services:
+  - mongodb
+
 go:
   - 1.9
   - "1.10"
