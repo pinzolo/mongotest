@@ -1,0 +1,21 @@
+users:
+  admin1:
+    name: admin user1
+    email: admin1@example.com
+    admin: true
+    company: foo
+    age: 30
+    note: xyz
+    created_at: 2019-01-02T12:34:56Z
+  user1:
+    name: normal user1
+    email: user1@example.com
+    admin: false
+    company: foo
+    age: 25
+    created_at: 2019-01-02T12:34:56Z
+companies:
+  foo:
+    name: foo company
+  bar:
+    name: bar company
