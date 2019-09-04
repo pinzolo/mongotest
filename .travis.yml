@@ -20,7 +20,7 @@ before_install:
   - go get golang.org/x/tools/cmd/cover
   - sleep 15
   - mongo --version
-  - mongo mongotest --eval 'db.createUser({user:"root",pwd:"password",roles:["root"]});'
+  - mongo mongotest --eval 'db.createUser({user:"root",pwd:"password",roles:[{role:"userAdminAnyDatabase",db:"admin"}]});'
 
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci
