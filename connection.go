@@ -9,11 +9,11 @@ import (
 )
 
 func connect(ctx context.Context) (context.Context, *mongo.Client, context.CancelFunc, error) {
-	client, err := mongo.NewClient(options.Client().ApplyURI(conf.url))
+	client, err := mongo.NewClient(options.Client().ApplyURI(conf.URL))
 	if err != nil {
 		return ctx, nil, nil, err
 	}
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(conf.timeout)*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(conf.Timeout)*time.Second)
 	err = client.Connect(ctx)
 	if err != nil {
 		cancel()
@@ -30,6 +30,6 @@ func connectCollection(ctx context.Context, collName string) (context.Context, *
 	if err != nil {
 		return ctx, nil, cancel, err
 	}
-	collection := client.Database(conf.database).Collection(collName)
+	collection := client.Database(conf.Database).Collection(collName)
 	return ctx, collection, cancel, err
 }

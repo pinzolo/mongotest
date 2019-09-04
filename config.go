@@ -18,99 +18,77 @@ const (
 	// fixtureFormatUnknown means that fixture is written with unknown format.
 	// Not export this value. Using error instead of this value.
 	fixtureFormatUnknown = FixtureFormatType("Unknown")
+	fixtureFormatEmpty   = FixtureFormatType("")
 
 	defaultTimeoutSeconds = 10
 )
 
-type config struct {
-	url               string
-	database          string
-	fixtureRootDir    string
+// Config is configuration holder of mongotest module.
+type Config struct {
+	URL            string
+	Database       string
+	FixtureRootDir string
+	FixtureFormat  FixtureFormatType
+	Timeout        int
+	PreInsertFuncs []PreInsertFunc
+
 	fixtureRootDirAbs string
-	fixtureFormat     FixtureFormatType
-	timeout           int
-	preInsertFuncs    []PreInsertFunc
 }
 
-func defaultConfig() *config {
-	return &config{
-		fixtureFormat:  FixtureFormatAuto,
-		timeout:        defaultTimeoutSeconds,
-		preInsertFuncs: make([]PreInsertFunc, 0),
+var conf = defaultConfig()
+
+// Configuration returns current config.
+func Configuration() Config {
+	return conf
+}
+
+func defaultConfig() Config {
+	return Config{
+		FixtureFormat:  FixtureFormatAuto,
+		Timeout:        defaultTimeoutSeconds,
+		PreInsertFuncs: make([]PreInsertFunc, 0),
 	}
 }
-
-// ConfigFunc is function for setting configuration parameter.
-type ConfigFunc func(conf *config) *config
 
 // PreInsertFunc is function for doing additional action to values.
 type PreInsertFunc func(collectionName string, doc DocData) (DocData, error)
 
-// URL returns function for setting MongoDB server url.
-//   ex: mongodb://localhost:27017
-func URL(url string) ConfigFunc {
-	return func(conf *config) *config {
-		conf.url = url
-		return conf
-	}
-}
-
-// Database returns function for setting database name that is connected to.
-func Database(name string) ConfigFunc {
-	return func(conf *config) *config {
-		conf.database = name
-		return conf
-	}
-}
-
-// FixtureRootDir returns function for setting root directory path of fixtures.
-func FixtureRootDir(dir string) ConfigFunc {
-	return func(conf *config) *config {
-		conf.fixtureRootDir = dir
-		return conf
-	}
-}
-
-// FixtureFormat returns function for setting format of fixtures.
-func FixtureFormat(format FixtureFormatType) ConfigFunc {
-	return func(conf *config) *config {
-		conf.fixtureFormat = format
-		return conf
-	}
-}
-
-// Timeout returns function for setting timeout seconds.
-// If given value is minus, this func does not set value to config.
-// Default timeout is 10 seconds.
-func Timeout(timeout int) ConfigFunc {
-	return func(conf *config) *config {
-		conf.timeout = timeout
-		return conf
-	}
-}
-
-// PreInsert returns function for setting function for doing additional action to values.
-func PreInsert(fn PreInsertFunc) ConfigFunc {
-	return func(conf *config) *config {
-		conf.preInsertFuncs = append(conf.preInsertFuncs, fn)
-		return conf
-	}
-}
-
 func validateConfig() error {
-	if conf.url == "" {
+	if conf.URL == "" {
 		return errors.New("empty URL")
 	}
-	if conf.database == "" {
-		return errors.New("empty database name")
+	if conf.Database == "" {
+		return errors.New("empty Database name")
 	}
-	if conf.timeout <= 0 {
-		return errors.New("invalid timeout seconds")
+	if conf.Timeout <= 0 {
+		return errors.New("invalid Timeout seconds")
 	}
-	abs, err := filepath.Abs(conf.fixtureRootDir)
+	abs, err := filepath.Abs(conf.FixtureRootDir)
 	if err != nil {
 		return err
 	}
 	conf.fixtureRootDirAbs = abs
 	return nil
+}
+
+// Configure overwrite configuration by given config.
+func Configure(c Config) {
+	if c.URL != "" {
+		conf.URL = c.URL
+	}
+	if c.Database != "" {
+		conf.Database = c.Database
+	}
+	if c.FixtureRootDir != "" {
+		conf.FixtureRootDir = c.FixtureRootDir
+	}
+	if c.FixtureFormat != fixtureFormatEmpty {
+		conf.FixtureFormat = c.FixtureFormat
+	}
+	if c.Timeout > 0 {
+		conf.Timeout = c.Timeout
+	}
+	if c.PreInsertFuncs != nil {
+		conf.PreInsertFuncs = c.PreInsertFuncs
+	}
 }

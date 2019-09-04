@@ -7,15 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-var conf = defaultConfig()
-
-// Configure mongotest module, apply given optional functions.
-func Configure(opts ...ConfigFunc) {
-	for _, opt := range opts {
-		conf = opt(conf)
-	}
-}
-
 // Try connecting to MongoDB server.
 func Try() error {
 	if err := validateConfig(); err != nil {

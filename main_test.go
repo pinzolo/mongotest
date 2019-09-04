@@ -9,14 +9,17 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	mongotest.Configure(
-		mongotest.URL("mongodb://root:password@127.0.0.1:27017"),
-		mongotest.Database("mongotest"),
-		mongotest.FixtureRootDir("testdata"),
-		mongotest.PreInsert(mongotest.SimpleConvertTime("users", "created_at")))
+	mongotest.Configure(mongotest.Config{
+		URL:            "mongodb://root:password@127.0.0.1:27017",
+		Database:       "mongotest",
+		FixtureRootDir: "testdata",
+		PreInsertFuncs: []mongotest.PreInsertFunc{
+			mongotest.SimpleConvertTime("users", "created_at"),
+		},
+	})
 
 	if err := mongotest.Try(); err != nil {
-		fmt.Println("Cannot connect to database, please run `docker-compose up -d`")
+		fmt.Println("Cannot connect to Database, please run `docker-compose up -d`")
 		os.Exit(2)
 	}
 	code := m.Run()

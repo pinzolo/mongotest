@@ -13,29 +13,23 @@ func TestTry(t *testing.T) {
 }
 
 func TestTryWithEmptyURL(t *testing.T) {
-	defer mongotest.Reconfigure(mongotest.URL(""))()
+	defer mongotest.DefaultConfig()()
 	if err := mongotest.Try(); err == nil {
-		t.Error("Try should return error when database URL is empty")
+		t.Error("Try should return error when Database URL is empty")
 	}
 }
 
 func TestTryWithEmptyDatabase(t *testing.T) {
-	defer mongotest.Reconfigure(mongotest.Database(""))()
+	defer mongotest.DefaultConfig()()
+	defer mongotest.Reconfigure(mongotest.Config{URL: "mongodb://root:password@localhost:27017"})()
 	if err := mongotest.Try(); err == nil {
-		t.Error("Try should return error when database name is empty")
-	}
-}
-
-func TestTryWithMinusTimout(t *testing.T) {
-	defer mongotest.Reconfigure(mongotest.Timeout(-1))()
-	if err := mongotest.Try(); err == nil {
-		t.Error("Try should return error when timeout seconds is invalid")
+		t.Error("Try should return error when Database name is empty")
 	}
 }
 
 func TestTryWithInvalidURL(t *testing.T) {
-	defer mongotest.Reconfigure(mongotest.URL("mongodb://root:password@localhost:2701"))()
+	defer mongotest.Reconfigure(mongotest.Config{URL: "mongodb://root:password@localhost:2701"})()
 	if err := mongotest.Try(); err == nil {
-		t.Error("Try should return error when database URL is invalid")
+		t.Error("Try should return error when Database URL is invalid")
 	}
 }

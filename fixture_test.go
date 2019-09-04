@@ -124,7 +124,9 @@ func commonSuccessCheck(t *testing.T, age interface{}) {
 }
 
 func TestUseFixtureJSONFormat(t *testing.T) {
-	defer mongotest.Reconfigure(mongotest.FixtureFormat(mongotest.FixtureFormatJSON))()
+	defer mongotest.Reconfigure(mongotest.Config{
+		FixtureFormat: mongotest.FixtureFormatJSON,
+	})()
 	err := mongotest.UseFixture("json/admin_users")
 	if err != nil {
 		t.Error(err)

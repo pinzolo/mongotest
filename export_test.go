@@ -2,13 +2,11 @@ package mongotest
 
 var DefaultTimeoutSeconds = defaultTimeoutSeconds
 
-func Reconfigure(opts ...ConfigFunc) (reset func()) {
-	orig := *conf
-	if len(opts) > 0 {
-		Configure(opts...)
-	}
+func Reconfigure(c Config) (reset func()) {
+	orig := conf
+	Configure(c)
 	return func() {
-		conf = &orig
+		conf = orig
 	}
 }
 
@@ -18,24 +16,4 @@ func DefaultConfig() (reset func()) {
 	return func() {
 		conf = orig
 	}
-}
-
-func GetConfigURL() string {
-	return conf.url
-}
-
-func GetConfigDatabase() string {
-	return conf.database
-}
-
-func GetConfigFixtureRootDir() string {
-	return conf.fixtureRootDir
-}
-
-func GetConfigFixtureFormat() FixtureFormatType {
-	return conf.fixtureFormat
-}
-
-func GetConfigTimeout() int {
-	return conf.timeout
 }

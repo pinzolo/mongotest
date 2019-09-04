@@ -8,64 +8,54 @@ import (
 
 func TestDefaultConfig(t *testing.T) {
 	defer mongotest.DefaultConfig()()
-	if got := mongotest.GetConfigURL(); got != "" {
-		t.Errorf("default url configuration should be empty but got %q", got)
+	conf := mongotest.Configuration()
+	if got := conf.URL; got != "" {
+		t.Errorf("default URL configuration should be empty but got %q", got)
 	}
-	if got := mongotest.GetConfigDatabase(); got != "" {
-		t.Errorf("default database name configuration should be empty but got %q", got)
+	if got := conf.Database; got != "" {
+		t.Errorf("default Database name configuration should be empty but got %q", got)
 	}
-	if got := mongotest.GetConfigFixtureRootDir(); got != "" {
+	if got := conf.FixtureRootDir; got != "" {
 		t.Errorf("default root directory of fixtures configuration should be empty but got %q", got)
 	}
-	if got := mongotest.GetConfigTimeout(); got != mongotest.DefaultTimeoutSeconds {
+	if got := conf.Timeout; got != mongotest.DefaultTimeoutSeconds {
 		t.Errorf("default timeoute seconds is invalid(want %d, got %d)", mongotest.DefaultTimeoutSeconds, got)
 	}
-	if got := mongotest.GetConfigFixtureFormat(); got != mongotest.FixtureFormatAuto {
+	if got := conf.FixtureFormat; got != mongotest.FixtureFormatAuto {
 		t.Errorf("default fixture format configuration should be auto but got %q", got)
 	}
 }
 
-func TestURL(t *testing.T) {
+func TestConfigure(t *testing.T) {
 	defer mongotest.DefaultConfig()()
-	want := "mongodb://localhost:27017"
-	mongotest.Configure(mongotest.URL(want))
-	if got := mongotest.GetConfigURL(); got != want {
-		t.Errorf("url configuration is invalid. (want: %q, got: %q)", want, got)
+	c := mongotest.Config{
+		URL:            "mongodb://localhost:27017",
+		Database:       "mongotest",
+		FixtureRootDir: "testdata",
+		FixtureFormat:  mongotest.FixtureFormatJSON,
+		Timeout:        30,
+		PreInsertFuncs: []mongotest.PreInsertFunc{
+			mongotest.SimpleConvertTime("users", "created_at"),
+		},
 	}
-}
-
-func TestDatabase(t *testing.T) {
-	defer mongotest.DefaultConfig()()
-	want := "users"
-	mongotest.Configure(mongotest.Database(want))
-	if got := mongotest.GetConfigDatabase(); got != want {
-		t.Errorf("database name configuration is invalid. (want: %q, got: %q)", want, got)
+	mongotest.Configure(c)
+	conf := mongotest.Configuration()
+	if conf.URL != c.URL {
+		t.Errorf("URL should be overwritten. (want: %q, got: %q", c.URL, conf.URL)
 	}
-}
-
-func TestFixtureRootDir(t *testing.T) {
-	defer mongotest.DefaultConfig()()
-	want := "testdata"
-	mongotest.Configure(mongotest.FixtureRootDir(want))
-	if got := mongotest.GetConfigFixtureRootDir(); got != want {
-		t.Errorf("fixture root directory configuration is invalid. (want: %q, got: %q)", want, got)
+	if conf.Database != c.Database {
+		t.Errorf("Database should be overwritten. (want: %q, got: %q", c.Database, conf.Database)
 	}
-}
-
-func TestFixtureFormat(t *testing.T) {
-	defer mongotest.DefaultConfig()()
-	want := mongotest.FixtureFormatJSON
-	mongotest.Configure(mongotest.FixtureFormat(want))
-	if got := mongotest.GetConfigFixtureFormat(); got != want {
-		t.Errorf("fixture format configuration is invalid. (want: %q, got: %q)", want, got)
+	if conf.FixtureRootDir != c.FixtureRootDir {
+		t.Errorf("FixtureRootDir should be overwritten. (want: %q, got: %q", c.FixtureRootDir, conf.FixtureRootDir)
 	}
-}
-
-func TestTimeout(t *testing.T) {
-	defer mongotest.DefaultConfig()()
-	want := 30
-	mongotest.Configure(mongotest.Timeout(30))
-	if got := mongotest.GetConfigTimeout(); got != want {
-		t.Errorf("timeout seconds configuration is invalid. (want: %d, got: %d)", want, got)
+	if conf.FixtureFormat != c.FixtureFormat {
+		t.Errorf("FixtureFormat should be overwritten. (want: %q, got: %q", c.FixtureFormat, conf.FixtureFormat)
+	}
+	if conf.Timeout != c.Timeout {
+		t.Errorf("Timeout should be overwritten. (want: %d, got: %d", c.Timeout, conf.Timeout)
+	}
+	if len(conf.PreInsertFuncs) != len(c.PreInsertFuncs) {
+		t.Errorf("PreInsertFuncs should be overwritten. (want: %#v, got: %#v", c.PreInsertFuncs, conf.PreInsertFuncs)
 	}
 }

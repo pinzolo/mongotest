@@ -130,8 +130,8 @@ func readFixtureFile(file string) (DataSet, error) {
 }
 
 func fixtureFormat(file string) (FixtureFormatType, error) {
-	if conf.fixtureFormat != FixtureFormatAuto {
-		return conf.fixtureFormat, nil
+	if conf.FixtureFormat != FixtureFormatAuto {
+		return conf.FixtureFormat, nil
 	}
 	ext := strings.ToLower(filepath.Ext(file))
 	switch ext {
@@ -202,12 +202,12 @@ func toValues(collectionName string, coll CollectionData) ([]interface{}, error)
 }
 
 func applyPreFuncs(collName string, value DocData) (DocData, error) {
-	if conf.preInsertFuncs == nil {
+	if conf.PreInsertFuncs == nil {
 		return value, nil
 	}
 	v := value
 	var err error
-	for _, fn := range conf.preInsertFuncs {
+	for _, fn := range conf.PreInsertFuncs {
 		v, err = fn(collName, v)
 		if err != nil {
 			return nil, err
