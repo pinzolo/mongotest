@@ -19,7 +19,8 @@ before_install:
   - go get github.com/mattn/goveralls
   - go get golang.org/x/tools/cmd/cover
   - sleep 15
-  - mongo mongotest --eval 'db.createUser({user:"root",pwd:"password",roles:["readWrite"]});'
+  - mongo --version
+  - mongo mongotest --eval 'db.createUser({user:"root",pwd:"password",roles:["root"]});'
 
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci
