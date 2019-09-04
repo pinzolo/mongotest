@@ -2,7 +2,8 @@ package mongotest
 
 import (
 	"context"
-	"time"
+
+	"github.com/tkuchiki/parsetime"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -78,7 +79,11 @@ func SimpleConvertTime(collectionName, fieldName string) PreInsertFunc {
 			if !ok {
 				return value, nil
 			}
-			t, err := time.Parse("2006-01-02T15:04:05Z", sv)
+			p, err := parsetime.NewParseTime()
+			if err != nil {
+				return nil, err
+			}
+			t, err := p.Parse(sv)
 			if err != nil {
 				return nil, err
 			}

@@ -119,8 +119,39 @@ func TestUseFixtureWithDataSetMerge(t *testing.T) {
 	}
 }
 
-func commonSuccessCheck(t *testing.T, age interface{}) {
-	t.Helper()
+func TestUseFixtureYAMLFormat(t *testing.T) {
+	defer mongotest.Reconfigure(mongotest.Config{
+		FixtureFormat: mongotest.FixtureFormatYAML,
+	})()
+	err := mongotest.UseFixture("yaml/admin_users")
+	if err != nil {
+		t.Error(err)
+	}
+	cnt, err := mongotest.CountInt("users")
+	if err != nil {
+		t.Error(err)
+	}
+	if cnt != 2 {
+		t.Errorf("saved user count is invalid (want: %d, got: %d)", cnt, 2)
+	}
+
+	saved, err := mongotest.Find("users", "admin1")
+	if err != nil {
+		t.Error(err)
+	}
+	want := map[string]interface{}{
+		"_id":        "admin1",
+		"name":       "admin user1",
+		"email":      "admin1@example.com",
+		"admin":      true,
+		"company":    "foo",
+		"age":        int32(30),
+		"note":       "abc",
+		"created_at": createdAtPrimitive,
+	}
+	if !reflect.DeepEqual(saved, want) {
+		t.Errorf("saved user is invalid. (%v)", diffMap(saved, want))
+	}
 }
 
 func TestUseFixtureJSONFormat(t *testing.T) {
