@@ -41,10 +41,12 @@ func UseFixtureWithContext(ctx context.Context, names ...string) error {
 	if err != nil {
 		return err
 	}
-	bs, _ := yaml.Marshal(ds)
-	fmt.Println(string(bs))
 	for cn, cd := range ds {
-		err = resetCollection(ctx, cn, toValues(cd))
+		vs, err := toValues(cn, cd)
+		if err != nil {
+			return err
+		}
+		err = resetCollection(ctx, cn, vs)
 		if err != nil {
 			return err
 		}
@@ -197,7 +199,7 @@ func mergeDocData(doc1, doc2 docData) docData {
 	return merged
 }
 
-func toValues(coll collData) []interface{} {
+func toValues(collectionName string, coll collData) ([]interface{}, error) {
 	values := make([]interface{}, 0, len(coll))
 	for id, doc := range coll {
 		newDoc := make(docData)
@@ -205,13 +207,31 @@ func toValues(coll collData) []interface{} {
 			newDoc[k] = v
 		}
 		newDoc["_id"] = id
-		values = append(values, newDoc)
+		v, err := applyPreFuncs(collectionName, newDoc)
+		if err != nil {
+			return nil, err
+		}
+		values = append(values, v)
 	}
-	return values
+	return values, nil
+}
+
+func applyPreFuncs(collName string, value docData) (docData, error) {
+	if conf.preInsertFuncs == nil {
+		return value, nil
+	}
+	v := value
+	var err error
+	for _, fn := range conf.preInsertFuncs {
+		v, err = fn(collName, v)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return v, nil
 }
 
 func resetCollection(ctx context.Context, name string, values []interface{}) error {
-	fmt.Printf("%#v\n", values)
 	ctx, collection, cancel, err := connectCollection(ctx, name)
 	if err != nil {
 		return err

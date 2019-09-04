@@ -29,17 +29,22 @@ type config struct {
 	fixtureRootDirAbs string
 	fixtureFormat     FixtureFormatType
 	timeout           int
+	preInsertFuncs    []PreInsertFunc
 }
 
 func defaultConfig() *config {
 	return &config{
-		fixtureFormat: FixtureFormatAuto,
-		timeout:       defaultTimeoutSeconds,
+		fixtureFormat:  FixtureFormatAuto,
+		timeout:        defaultTimeoutSeconds,
+		preInsertFuncs: make([]PreInsertFunc, 0),
 	}
 }
 
 // ConfigFunc is function for setting configuration parameter.
 type ConfigFunc func(conf *config) *config
+
+// PreInsertFunc is function for doing additional action to values.
+type PreInsertFunc func(collectionName string, value map[string]interface{}) (map[string]interface{}, error)
 
 // URL returns function for setting MongoDB server url.
 //   ex: mongodb://localhost:27017
@@ -80,6 +85,14 @@ func FixtureFormat(format FixtureFormatType) ConfigFunc {
 func Timeout(timeout int) ConfigFunc {
 	return func(conf *config) *config {
 		conf.timeout = timeout
+		return conf
+	}
+}
+
+// PreInsert returns function for setting function for doing additional action to values.
+func PreInsert(fn PreInsertFunc) ConfigFunc {
+	return func(conf *config) *config {
+		conf.preInsertFuncs = append(conf.preInsertFuncs, fn)
 		return conf
 	}
 }

@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"github.com/pinzolo/mongotest"
 )
 
@@ -16,6 +18,7 @@ func newDiff(key string, v1, v2 interface{}) string {
 const noVal = "<no value>"
 
 var createdAt = time.Date(2019, 1, 2, 12, 34, 56, 0, time.UTC)
+var createdAtPrimitive = primitive.NewDateTimeFromTime(createdAt)
 
 func diffMap(m1 map[string]interface{}, m2 map[string]interface{}) []string {
 	diffs := make([]string, 0, len(m1))
@@ -61,7 +64,7 @@ func TestUseFixture(t *testing.T) {
 		"company":    "foo",
 		"age":        int32(30),
 		"note":       "abc",
-		"created_at": "2019-01-02T12:34:56Z",
+		"created_at": createdAtPrimitive,
 	}
 	if !reflect.DeepEqual(saved, want) {
 		t.Errorf("saved user is invalid. (%v)", diffMap(saved, want))
@@ -101,7 +104,7 @@ func TestUseFixtureWithDataSetMerge(t *testing.T) {
 		"company":    "foo",
 		"age":        float64(30),
 		"note":       "xyz",
-		"created_at": "2019-01-02T12:34:56Z",
+		"created_at": createdAtPrimitive,
 	}
 	if !reflect.DeepEqual(saved, want) {
 		t.Errorf("saved user is invalid. (%v)", diffMap(saved, want))
@@ -146,7 +149,7 @@ func TestUseFixtureJSONFormat(t *testing.T) {
 		"company":    "foo",
 		"age":        float64(30),
 		"note":       "abc",
-		"created_at": "2019-01-02T12:34:56Z",
+		"created_at": createdAtPrimitive,
 	}
 	if !reflect.DeepEqual(saved, want) {
 		t.Errorf("saved user is invalid. (%v)", diffMap(saved, want))

@@ -2,6 +2,7 @@ package mongotest
 
 import (
 	"context"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -76,4 +77,33 @@ func FindWithContext(ctx context.Context, collectionName string, id interface{})
 // Find document that has given id in given named collection.
 func Find(collectionName string, id interface{}) (map[string]interface{}, error) {
 	return FindWithContext(context.Background(), collectionName, id)
+}
+
+func SimpleConvertTime(collectionName, fieldName string) PreInsertFunc {
+	return func(collName string, value map[string]interface{}) (map[string]interface{}, error) {
+		if collName == "users" {
+			sv, ok := stringValue(value, "created_at")
+			if !ok {
+				return value, nil
+			}
+			t, err := time.Parse("2006-01-02T15:04:05Z", sv)
+			if err != nil {
+				return nil, err
+			}
+			value["created_at"] = t
+		}
+		return value, nil
+	}
+}
+
+func stringValue(m map[string]interface{}, key string) (value string, ok bool) {
+	v, ok := m[key]
+	if !ok {
+		return "", false
+	}
+	s, ok := v.(string)
+	if !ok || s == "" {
+		return "", false
+	}
+	return s, true
 }
