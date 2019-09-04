@@ -79,10 +79,11 @@ func Find(collectionName string, id interface{}) (map[string]interface{}, error)
 	return FindWithContext(context.Background(), collectionName, id)
 }
 
+// SimpleConvertTime provides simple PreInsertFunc for converting string time to time.Time.
 func SimpleConvertTime(collectionName, fieldName string) PreInsertFunc {
-	return func(collName string, value map[string]interface{}) (map[string]interface{}, error) {
-		if collName == "users" {
-			sv, ok := stringValue(value, "created_at")
+	return func(collName string, value DocData) (DocData, error) {
+		if collName == collectionName {
+			sv, ok := value.StringValue(fieldName)
 			if !ok {
 				return value, nil
 			}
@@ -90,20 +91,8 @@ func SimpleConvertTime(collectionName, fieldName string) PreInsertFunc {
 			if err != nil {
 				return nil, err
 			}
-			value["created_at"] = t
+			value[fieldName] = t
 		}
 		return value, nil
 	}
-}
-
-func stringValue(m map[string]interface{}, key string) (value string, ok bool) {
-	v, ok := m[key]
-	if !ok {
-		return "", false
-	}
-	s, ok := v.(string)
-	if !ok || s == "" {
-		return "", false
-	}
-	return s, true
 }

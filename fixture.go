@@ -12,21 +12,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// docData is document data
-//   key: field name
-//   value: field value
-type docData map[string]interface{}
-
-// collData is collection data
-//   key: document ID
-//   value: document data (exclude ID)
-type collData map[string]docData
-
-// dataSet is collection of document data
-//   key: collection name
-//   value: collection data
-type dataSet map[string]collData
-
 // UseFixtureWithContext apply fixture data to MongoDB with context.Context.
 // If multi names are given, fixture data will be merged.(overwriting by after dataset)
 func UseFixtureWithContext(ctx context.Context, names ...string) error {
@@ -83,7 +68,7 @@ func findFixtureFilePath(name string) (string, error) {
 			return filepath.Join(dir, fi.Name()), nil
 		}
 	}
-	return "", fmt.Errorf("dataSet %q not found in %s", name, conf.fixtureRootDirAbs)
+	return "", fmt.Errorf("DataSet %q not found in %s", name, conf.fixtureRootDirAbs)
 }
 
 func fixturePath(name string) (dir string, base string) {
@@ -103,7 +88,7 @@ func splitDataSetName(name string) []string {
 	return []string{name}
 }
 
-func loadDataSet(files ...string) (dataSet, error) {
+func loadDataSet(files ...string) (DataSet, error) {
 	dss, err := toDataSets(files...)
 	if err != nil {
 		return nil, err
@@ -111,8 +96,8 @@ func loadDataSet(files ...string) (dataSet, error) {
 	return mergeDataSet(dss), nil
 }
 
-func toDataSets(files ...string) ([]dataSet, error) {
-	dss := make([]dataSet, len(files))
+func toDataSets(files ...string) ([]DataSet, error) {
+	dss := make([]DataSet, len(files))
 	for i, file := range files {
 		ds, err := readFixtureFile(file)
 		if err != nil {
@@ -123,7 +108,7 @@ func toDataSets(files ...string) ([]dataSet, error) {
 	return dss, nil
 }
 
-func readFixtureFile(file string) (dataSet, error) {
+func readFixtureFile(file string) (DataSet, error) {
 	format, err := fixtureFormat(file)
 	if err != nil {
 		return nil, err
@@ -132,7 +117,7 @@ func readFixtureFile(file string) (dataSet, error) {
 	if err != nil {
 		return nil, err
 	}
-	ds := make(dataSet)
+	ds := make(DataSet)
 	if format == FixtureFormatYAML {
 		err = yaml.Unmarshal(bs, &ds)
 	} else if format == FixtureFormatJSON {
@@ -159,8 +144,8 @@ func fixtureFormat(file string) (FixtureFormatType, error) {
 	}
 }
 
-func mergeDataSet(dss []dataSet) dataSet {
-	merged := make(dataSet)
+func mergeDataSet(dss []DataSet) DataSet {
+	merged := make(DataSet)
 	for _, ds := range dss {
 		for k, v := range ds {
 			if coll, ok := merged[k]; ok {
@@ -173,8 +158,8 @@ func mergeDataSet(dss []dataSet) dataSet {
 	return merged
 }
 
-func mergeCollData(coll1, coll2 collData) collData {
-	merged := make(collData)
+func mergeCollData(coll1, coll2 CollectionData) CollectionData {
+	merged := make(CollectionData)
 	for k, v := range coll1 {
 		merged[k] = v
 	}
@@ -188,8 +173,8 @@ func mergeCollData(coll1, coll2 collData) collData {
 	return merged
 }
 
-func mergeDocData(doc1, doc2 docData) docData {
-	merged := make(docData)
+func mergeDocData(doc1, doc2 DocData) DocData {
+	merged := make(DocData)
 	for k, v := range doc1 {
 		merged[k] = v
 	}
@@ -199,10 +184,10 @@ func mergeDocData(doc1, doc2 docData) docData {
 	return merged
 }
 
-func toValues(collectionName string, coll collData) ([]interface{}, error) {
+func toValues(collectionName string, coll CollectionData) ([]interface{}, error) {
 	values := make([]interface{}, 0, len(coll))
 	for id, doc := range coll {
-		newDoc := make(docData)
+		newDoc := make(DocData)
 		for k, v := range doc {
 			newDoc[k] = v
 		}
@@ -216,7 +201,7 @@ func toValues(collectionName string, coll collData) ([]interface{}, error) {
 	return values, nil
 }
 
-func applyPreFuncs(collName string, value docData) (docData, error) {
+func applyPreFuncs(collName string, value DocData) (DocData, error) {
 	if conf.preInsertFuncs == nil {
 		return value, nil
 	}

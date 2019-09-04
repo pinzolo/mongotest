@@ -44,7 +44,7 @@ func defaultConfig() *config {
 type ConfigFunc func(conf *config) *config
 
 // PreInsertFunc is function for doing additional action to values.
-type PreInsertFunc func(collectionName string, value map[string]interface{}) (map[string]interface{}, error)
+type PreInsertFunc func(collectionName string, doc DocData) (DocData, error)
 
 // URL returns function for setting MongoDB server url.
 //   ex: mongodb://localhost:27017
