@@ -12,7 +12,7 @@ func (d DocData) StringValue(key string) (string, bool) {
 		return "", false
 	}
 	s, ok := v.(string)
-	if !ok || s == "" {
+	if !ok {
 		return "", false
 	}
 	return s, true
