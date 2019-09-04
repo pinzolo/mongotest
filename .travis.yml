@@ -7,7 +7,10 @@ branches:
     - master
 
 services:
-  - mongodb
+  - docker
+
+env:
+  - DOCKER_COMPOSE_VERSION: 1.8.0
 
 go:
   - 1.9
@@ -18,9 +21,11 @@ go:
 before_install:
   - go get github.com/mattn/goveralls
   - go get golang.org/x/tools/cmd/cover
-  - sleep 15
-  - mongo --version
-  - mongo mongotest --eval 'db.createUser({user:"root",pwd:"password",roles:[{role:"userAdminAnyDatabase",db:"admin"}]});'
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker-compose up -d
 
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci
