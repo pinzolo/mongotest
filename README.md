@@ -1,6 +1,6 @@
 # mongotest
 
-[![Build Status](https://travis-ci.org/pinzolo/mongotest.png)](http://travis-ci.org/pinzolo/mongotest)
+[![Test](https://github.com/pinzolo/mongotest/actions/workflows/test.yml/badge.svg)](https://github.com/pinzolo/mongotest/actions/workflows/test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/pinzolo/mongotest/badge.svg?branch=master)](https://coveralls.io/github/pinzolo/mongotest?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/pinzolo/mongotest)](https://goreportcard.com/report/github.com/pinzolo/mongotest)
 [![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/pinzolo/mongotest)
