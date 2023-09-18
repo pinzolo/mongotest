@@ -6,6 +6,7 @@ import (
 	"github.com/tkuchiki/parsetime"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // Try connecting to MongoDB server.
@@ -88,6 +89,38 @@ func SimpleConvertTime(collectionName, fieldName string) PreInsertFunc {
 				return nil, err
 			}
 			value[fieldName] = t
+		}
+		return value, nil
+	}
+}
+
+// SimpleConvertBytes provides simple PreInsertFunc for converting string to BinData
+func SimpleConvertBytes(collectionName, fieldName string) PreInsertFunc {
+	return func(collName string, value DocData) (DocData, error) {
+		if collName == collectionName {
+			sv, ok := value.StringValue(fieldName)
+			if !ok {
+				return value, nil
+			}
+			value[fieldName] = []byte(sv)
+		}
+		return value, nil
+	}
+}
+
+// SimpleConvertObjID provides simple PreInsertFunc for converting string to ObjectID
+func SimpleConvertObjID(collectionName, fieldName string) PreInsertFunc {
+	return func(collName string, value DocData) (DocData, error) {
+		if collName == collectionName {
+			sv, ok := value.StringValue(fieldName)
+			if !ok {
+				return value, nil
+			}
+			objID, err := primitive.ObjectIDFromHex(sv)
+			if err != nil {
+				return nil, err
+			}
+			value[fieldName] = objID
 		}
 		return value, nil
 	}
