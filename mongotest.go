@@ -125,3 +125,30 @@ func SimpleConvertObjID(collectionName, fieldName string) PreInsertFunc {
 		return value, nil
 	}
 }
+
+// DropCollections drops multiple collections with the given names.
+func DropCollections(collections ...string) error {
+	for _, collection := range collections {
+		ctx := context.Background()
+		ctx, coll, cancel, err := connectCollection(ctx, collection)
+		if err != nil {
+			return err
+		}
+		defer cancel()
+		if err := coll.Drop(ctx); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// DropDatabase drops the entire database.
+func DropDatabase() error {
+	ctx := context.Background()
+	ctx, client, cancel, err := connect(ctx)
+	if err != nil {
+		return err
+	}
+	defer cancel()
+	return client.Database(conf.Database).Drop(ctx)
+}
