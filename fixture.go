@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -59,7 +59,7 @@ func toFilePaths(names ...string) ([]string, error) {
 
 func findFixtureFilePath(name string) (string, error) {
 	dir, base := fixturePath(name)
-	fis, err := ioutil.ReadDir(dir)
+	fis, err := os.ReadDir(dir)
 	if err != nil {
 		return "", err
 	}
@@ -113,7 +113,7 @@ func readFixtureFile(file string) (DataSet, error) {
 	if err != nil {
 		return nil, err
 	}
-	bs, err := ioutil.ReadFile(file)
+	bs, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
