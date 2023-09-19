@@ -28,6 +28,7 @@ func main() {
 		FixtureRootDir: "testdata",
 		FixtureFormat:  mongotest.FixtureFormatJSON,
 		PreInsertFuncs: []mongotest.PreInsertFunc{
+      mongotest.SimpleConvertObjID("users", "_id"),
 			mongotest.SimpleConvertTime("users", "created_at"),
 		},
 	})
@@ -47,6 +48,13 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(n)
+
+  // You can drop the entire database to reset the state to its condition
+  // before applying the fixtures.
+  err = mongotest.DropDatabase()
+  if err != nil {
+    panic(err)
+  }
 }
 ```
 
